@@ -85,9 +85,10 @@ npm run dist
 
 ---
 
-## 📝 Changelog
+## 📝 Changelog & Release Guide
 
-Detailed release notes and history are available in [CHANGELOG.md](CHANGELOG.md).
+- **Changelog**: Detailed release notes and history are available in [CHANGELOG.md](CHANGELOG.md).
+- **Release Procedure**: For instructions on updating the version, compiling x64/ia32 installers + portable exe, and publishing to GitHub, see [RELEASE_GUIDE.md](RELEASE_GUIDE.md).
 
 ---
 
