@@ -8,14 +8,18 @@ A sleek, cross-platform desktop timer software with background tray minimization
 
 ---
 
-## 🚀 Download & Quick Start
+## 🚀 Downloads (v0.0.1)
 
-### Windows Portable (No Installation Required)
-Download the standalone executable directly from the latest GitHub release:
+### 📦 Windows Installable Setups (NSIS)
+Select the installer that matches your Windows system architecture:
 
-👉 **[Download Hourglass-Timer-v0.0.1.exe](https://github.com/AbiruzzamanMolla/hourglass-reminder-loop-software/releases/download/v0.0.1/Hourglass-Timer-v0.0.1.exe)**
+- **[Download Windows 64-bit Installer (x64)](https://github.com/AbiruzzamanMolla/hourglass-reminder-loop-software/releases/download/v0.0.1/Hourglass-Timer-Setup-v0.0.1-x64.exe)** `(~76.6 MB)` *(Recommended for modern PCs)*
+- **[Download Windows 32-bit Installer (ia32)](https://github.com/AbiruzzamanMolla/hourglass-reminder-loop-software/releases/download/v0.0.1/Hourglass-Timer-Setup-v0.0.1-ia32.exe)** `(~71.8 MB)` *(For 32-bit Windows systems)*
 
-Simply double-click `Hourglass-Timer-v0.0.1.exe` to run.
+*Includes desktop shortcut, start menu shortcut, and custom install directory picker.*
+
+### ⚡ Portable Version (No Installation Required)
+- **[Download Standalone Portable .exe](https://github.com/AbiruzzamanMolla/hourglass-reminder-loop-software/releases/download/v0.0.1/Hourglass-Timer-v0.0.1.exe)** `(~69.4 MB)` *(Run directly from any folder or USB)*
 
 ---
 
