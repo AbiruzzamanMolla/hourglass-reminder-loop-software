@@ -241,6 +241,7 @@ class HourglassApp {
     this.isRunning = false;
     this.isPaused = false;
     this.isLooping = false;
+    this.notificationsEnabled = true;
     this.currentMode = 'hourglass'; // 'hourglass' | 'ring' | 'liquid' | 'pulse'
     this.timerInterval = null;
     this.lastTimestamp = null;
@@ -259,6 +260,12 @@ class HourglassApp {
     this.soundIconOn = document.getElementById('sound-icon-on');
     this.soundIconOff = document.getElementById('sound-icon-off');
     this.soundMuteLabel = document.getElementById('sound-mute-label');
+
+    // Windows Notification toggle
+    this.btnNotificationToggle = document.getElementById('btn-notification-toggle');
+    this.notifIconOn = document.getElementById('notif-icon-on');
+    this.notifIconOff = document.getElementById('notif-icon-off');
+    this.notifToggleLabel = document.getElementById('notif-toggle-label');
 
     // Sound picker
     this.soundSelector = document.getElementById('sound-selector');
@@ -340,6 +347,15 @@ class HourglassApp {
       this.soundIconOn.style.display = this.audio.soundEnabled ? 'block' : 'none';
       this.soundIconOff.style.display = this.audio.soundEnabled ? 'none' : 'block';
       this.soundMuteLabel.textContent = this.audio.soundEnabled ? 'Audio On' : 'Muted';
+    });
+
+    // Windows Notification Toggle
+    this.btnNotificationToggle.addEventListener('click', () => {
+      this.notificationsEnabled = !this.notificationsEnabled;
+      this.btnNotificationToggle.classList.toggle('active', this.notificationsEnabled);
+      this.notifIconOn.style.display = this.notificationsEnabled ? 'block' : 'none';
+      this.notifIconOff.style.display = this.notificationsEnabled ? 'none' : 'block';
+      this.notifToggleLabel.textContent = this.notificationsEnabled ? 'Notify On' : 'Notify Off';
     });
 
     // Sound Selector Dropdown
@@ -557,7 +573,8 @@ class HourglassApp {
     this.timeStatus.textContent = 'FINISHED!';
     this.audio.play();
 
-    if (window.electronAPI) {
+    // Trigger Desktop Notification if enabled by user
+    if (window.electronAPI && this.notificationsEnabled) {
       window.electronAPI.notify('Timer Complete!', this.isLooping ? 'Restarting loop...' : 'Your timer has finished.');
     }
 

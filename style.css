@@ -679,7 +679,7 @@ body {
 
 .secondary-toggles {
   display: flex;
-  gap: 10px;
+  gap: 6px;
 }
 
 .action-toggle {
@@ -687,15 +687,16 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 5px;
   background: var(--bg-card);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-sm);
   color: var(--text-secondary);
-  font-size: 0.78rem;
+  font-size: 0.74rem;
   font-family: var(--font-sans);
   font-weight: 500;
-  padding: 8px 12px;
+  padding: 7px 6px;
+  white-space: nowrap;
   cursor: pointer;
   transition: all 0.2s ease;
 }
