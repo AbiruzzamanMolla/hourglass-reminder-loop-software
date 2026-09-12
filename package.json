@@ -1,0 +1,21 @@
+{
+  "name": "hourglass-timer",
+  "version": "1.0.0",
+  "description": "A cross-platform progressive desktop timer with hourglass animation and system tray support",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "keywords": [
+    "timer",
+    "hourglass",
+    "pomodoro",
+    "electron",
+    "tray"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^33.2.0"
+  }
+}

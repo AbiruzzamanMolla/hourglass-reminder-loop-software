@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hourglass Timer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="window-container">
+    <!-- Custom Frameless Titlebar -->
+    <header class="titlebar" id="titlebar">
+      <div class="app-brand">
+        <svg class="brand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M5 22h14M5 2h14M17 22v-4.172a2 2 0 0 0-.586-1.414L12 12l-4.414 4.414A2 2 0 0 0 7 17.828V22M7 2v4.172a2 2 0 0 0 .586 1.414L12 12l4.414-4.414A2 2 0 0 0 17 6.172V2"></path>
+        </svg>
+        <span class="brand-title">Hourglass</span>
+      </div>
+      <div class="window-controls">
+        <button id="btn-minimize" class="win-btn" title="Minimize Window">
+          <svg viewBox="0 0 12 12" width="10" height="10"><line x1="1" y1="6" x2="11" y2="6" stroke="currentColor" stroke-width="1.5"/></svg>
+        </button>
+        <button id="btn-close-tray" class="win-btn win-close" title="Minimize to System Tray">
+          <svg viewBox="0 0 12 12" width="10" height="10">
+            <line x1="2" y1="2" x2="10" y2="10" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="10" y1="2" x2="2" y2="10" stroke="currentColor" stroke-width="1.5"/>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Visual Animation Viewport -->
+      <section class="visualizer-container">
+        <!-- Mode Switcher -->
+        <div class="visualizer-toggle">
+          <button id="mode-hourglass" class="toggle-tab active" title="Hourglass View">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M5 22h14M5 2h14M17 22v-4.172a2 2 0 0 0-.586-1.414L12 12l-4.414 4.414A2 2 0 0 0 7 17.828V22M7 2v4.172a2 2 0 0 0 .586 1.414L12 12l4.414-4.414A2 2 0 0 0 17 6.172V2"></path>
+            </svg>
+            Hourglass
+          </button>
+          <button id="mode-ring" class="toggle-tab" title="Circular Meter View">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="9"></circle>
+              <polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
+            Ring
+          </button>
+        </div>
+
+        <!-- 1. Hourglass Animation Graphic -->
+        <div id="hourglass-stage" class="animation-stage">
+          <div class="hourglass-wrapper">
+            <svg class="hourglass-svg" viewBox="0 0 200 280" preserveAspectRatio="xMidYMid meet">
+              <defs>
+                <!-- Sand Gradients -->
+                <linearGradient id="sandGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#fcd34d"/>
+                  <stop offset="50%" stop-color="#f59e0b"/>
+                  <stop offset="100%" stop-color="#d97706"/>
+                </linearGradient>
+
+                <linearGradient id="glassReflection" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stop-color="rgba(255,255,255,0.25)"/>
+                  <stop offset="30%" stop-color="rgba(255,255,255,0.05)"/>
+                  <stop offset="70%" stop-color="rgba(255,255,255,0)"/>
+                  <stop offset="100%" stop-color="rgba(255,255,255,0.15)"/>
+                </linearGradient>
+
+                <!-- Top Chamber Clip Path -->
+                <clipPath id="topChamberClip">
+                  <!-- Interior boundary of upper glass bulb -->
+                  <polygon points="35,38 165,38 108,135 92,135" />
+                </clipPath>
+
+                <!-- Bottom Chamber Clip Path -->
+                <clipPath id="bottomChamberClip">
+                  <!-- Interior boundary of lower glass bulb -->
+                  <polygon points="92,145 108,145 165,242 35,242" />
+                </clipPath>
+
+                <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+                  <feGaussianBlur stdDeviation="6" result="blur" />
+                  <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                </filter>
+              </defs>
+
+              <!-- Wooden/Metal Stand Rings -->
+              <rect x="25" y="16" width="150" height="12" rx="4" class="frame-wood" />
+              <rect x="35" y="28" width="130" height="6" rx="2" class="frame-accent" />
+              <rect x="35" y="246" width="130" height="6" rx="2" class="frame-accent" />
+              <rect x="25" y="252" width="150" height="12" rx="4" class="frame-wood" />
+
+              <!-- Outer Glass Glow -->
+              <path class="glass-outer-glow" d="M 32 36 Q 100 138 96 140 Q 100 142 32 244 L 168 244 Q 100 142 104 140 Q 100 138 168 36 Z" />
+
+              <!-- Top Sand Masked Level -->
+              <g clip-path="url(#topChamberClip)">
+                <rect id="top-sand-rect" x="20" y="38" width="160" height="100" fill="url(#sandGrad)" />
+                <ellipse id="top-sand-surface" cx="100" cy="38" rx="60" ry="6" fill="#fde68a" />
+              </g>
+
+              <!-- Bottom Sand Mound (Grows as time passes) -->
+              <g clip-path="url(#bottomChamberClip)">
+                <path id="bottom-sand-mound" d="M 35 244 Q 100 244 165 244 L 165 244 L 35 244 Z" fill="url(#sandGrad)" />
+              </g>
+
+              <!-- Falling Sand Stream & Impact Splashes -->
+              <line id="sand-stream" x1="100" y1="135" x2="100" y2="240" stroke="#fcd34d" stroke-width="2.5" stroke-linecap="round" class="sand-stream" />
+              
+              <!-- Sand Particles Canvas -->
+              <foreignObject x="90" y="135" width="20" height="110">
+                <canvas id="sand-particles-canvas" width="20" height="110"></canvas>
+              </foreignObject>
+
+              <!-- Glass Bulb Outline & Shading -->
+              <path class="glass-contour" d="M 32 36 Q 100 138 96 140 Q 100 142 32 244 L 168 244 Q 100 142 104 140 Q 100 138 168 36 Z" />
+              <!-- Highlight sheen -->
+              <path class="glass-reflection" d="M 40 42 Q 95 136 94 140 Q 95 144 40 238" />
+
+              <!-- Side Columns -->
+              <rect x="22" y="28" width="6" height="224" rx="2" class="frame-pillar" />
+              <rect x="172" y="28" width="6" height="224" rx="2" class="frame-pillar" />
+            </svg>
+          </div>
+        </div>
+
+        <!-- 2. Ring Animation Graphic -->
+        <div id="ring-stage" class="animation-stage" style="display: none;">
+          <div class="ring-wrapper">
+            <svg class="progress-ring" width="200" height="200" viewBox="0 0 200 200">
+              <defs>
+                <linearGradient id="ringGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#f59e0b" />
+                  <stop offset="50%" stop-color="#ec4899" />
+                  <stop offset="100%" stop-color="#8b5cf6" />
+                </linearGradient>
+              </defs>
+              <circle class="ring-track" cx="100" cy="100" r="82" />
+              <circle id="ring-progress" class="ring-bar" cx="100" cy="100" r="82" />
+            </svg>
+            <div class="ring-center-info">
+              <span id="ring-percentage" class="percentage-label">0%</span>
+              <span class="sub-label">ELAPSED</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Primary Digital Clock Readout -->
+        <div class="timer-display-box">
+          <div class="time-readout" id="time-display">00:00:00</div>
+          <div class="time-status" id="time-status">READY</div>
+        </div>
+      </section>
+
+      <!-- Input Settings & Presets (Visible when paused/stopped) -->
+      <section class="timer-config" id="timer-config">
+        <!-- Quick Presets -->
+        <div class="preset-chips">
+          <button class="chip" data-time="60">1m</button>
+          <button class="chip" data-time="300">5m</button>
+          <button class="chip" data-time="900">15m</button>
+          <button class="chip active-chip" data-time="1500">25m</button>
+          <button class="chip" data-time="3600">1h</button>
+        </div>
+
+        <!-- Custom Manual Input Pickers -->
+        <div class="time-inputs-row">
+          <div class="input-group">
+            <input type="number" id="input-hours" min="0" max="99" value="0" placeholder="00">
+            <label>Hours</label>
+          </div>
+          <span class="colon">:</span>
+          <div class="input-group">
+            <input type="number" id="input-minutes" min="0" max="59" value="25" placeholder="25">
+            <label>Mins</label>
+          </div>
+          <span class="colon">:</span>
+          <div class="input-group">
+            <input type="number" id="input-seconds" min="0" max="59" value="0" placeholder="00">
+            <label>Secs</label>
+          </div>
+        </div>
+      </section>
+
+      <!-- Actions Bar -->
+      <section class="controls-section">
+        <!-- Loop Toggle & Sound Toggle -->
+        <div class="secondary-toggles">
+          <button id="btn-loop" class="action-toggle" title="Auto-restart timer on completion">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M17 2l4 4-4 4"></path>
+              <path d="M3 11v-1a4 4 0 0 1 4-4h14"></path>
+              <path d="M7 22l-4-4 4-4"></path>
+              <path d="M21 13v1a4 4 0 0 1-4 4H3"></path>
+            </svg>
+            <span>Loop: <strong id="loop-state-text">OFF</strong></span>
+          </button>
+
+          <button id="btn-sound" class="action-toggle active" title="Sound alerts">
+            <svg id="sound-icon-on" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+              <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+              <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+            </svg>
+            <svg id="sound-icon-off" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="display: none;">
+              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+              <line x1="23" y1="9" x2="17" y2="15"></line>
+              <line x1="17" y1="9" x2="23" y2="15"></line>
+            </svg>
+            <span id="sound-label">Sound</span>
+          </button>
+        </div>
+
+        <!-- Main Buttons -->
+        <div class="primary-buttons">
+          <button id="btn-reset" class="btn-secondary" title="Reset Timer">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+              <path d="M3 3v5h5"></path>
+            </svg>
+          </button>
+          <button id="btn-play-pause" class="btn-primary" title="Start Timer">
+            <svg id="icon-play" viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
+              <polygon points="5 3 19 12 5 21 5 3"></polygon>
+            </svg>
+            <svg id="icon-pause" viewBox="0 0 24 24" width="22" height="22" fill="currentColor" style="display: none;">
+              <rect x="6" y="4" width="4" height="16" rx="1"></rect>
+              <rect x="14" y="4" width="4" height="16" rx="1"></rect>
+            </svg>
+            <span id="play-btn-text">Start Timer</span>
+          </button>
+        </div>
+      </section>
+    </main>
+
+    <!-- Footer Status -->
+    <footer class="app-footer">
+      <div class="tray-tip">
+        <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="16" x2="12" y2="12"></line>
+          <line x1="12" y1="8" x2="12.01" y2="8"></line>
+        </svg>
+        <span>Closing window keeps it running in the Taskbar Tray</span>
+      </div>
+    </footer>
+  </div>
+
+  <script src="renderer.js"></script>
+</body>
+</html>
