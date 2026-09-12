@@ -36,81 +36,76 @@
     <main class="main-content">
       <!-- Visual Animation Viewport -->
       <section class="visualizer-container">
-        <!-- Mode Switcher -->
+        <!-- 4 Animation Mode Switcher Tabs -->
         <div class="visualizer-toggle">
-          <button id="mode-hourglass" class="toggle-tab active" title="Hourglass View">
-            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2">
+          <button id="mode-hourglass" class="toggle-tab active" title="Hourglass Animation">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M5 22h14M5 2h14M17 22v-4.172a2 2 0 0 0-.586-1.414L12 12l-4.414 4.414A2 2 0 0 0 7 17.828V22M7 2v4.172a2 2 0 0 0 .586 1.414L12 12l4.414-4.414A2 2 0 0 0 17 6.172V2"></path>
             </svg>
             Hourglass
           </button>
-          <button id="mode-ring" class="toggle-tab" title="Circular Meter View">
-            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2">
+          <button id="mode-ring" class="toggle-tab" title="Radial Gradient Ring">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
               <circle cx="12" cy="12" r="9"></circle>
               <polyline points="12 6 12 12 16 14"></polyline>
             </svg>
             Ring
           </button>
+          <button id="mode-liquid" class="toggle-tab" title="Liquid Cylinder Wave">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"></path>
+            </svg>
+            Liquid
+          </button>
+          <button id="mode-pulse" class="toggle-tab" title="Neon Pulse Glow">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+            </svg>
+            Pulse
+          </button>
         </div>
+
+        <!-- Animation Stages -->
 
         <!-- 1. Hourglass Animation Graphic -->
         <div id="hourglass-stage" class="animation-stage">
           <div class="hourglass-wrapper">
             <svg class="hourglass-svg" viewBox="0 0 200 280" preserveAspectRatio="xMidYMid meet">
               <defs>
-                <!-- Sand Gradients -->
                 <linearGradient id="sandGrad" x1="0%" y1="0%" x2="100%" y2="100%">
                   <stop offset="0%" stop-color="#fcd34d"/>
                   <stop offset="50%" stop-color="#f59e0b"/>
                   <stop offset="100%" stop-color="#d97706"/>
                 </linearGradient>
 
-                <linearGradient id="glassReflection" x1="0%" y1="0%" x2="100%" y2="0%">
-                  <stop offset="0%" stop-color="rgba(255,255,255,0.25)"/>
-                  <stop offset="30%" stop-color="rgba(255,255,255,0.05)"/>
-                  <stop offset="70%" stop-color="rgba(255,255,255,0)"/>
-                  <stop offset="100%" stop-color="rgba(255,255,255,0.15)"/>
-                </linearGradient>
-
-                <!-- Top Chamber Clip Path -->
                 <clipPath id="topChamberClip">
-                  <!-- Interior boundary of upper glass bulb -->
                   <polygon points="35,38 165,38 108,135 92,135" />
                 </clipPath>
 
-                <!-- Bottom Chamber Clip Path -->
                 <clipPath id="bottomChamberClip">
-                  <!-- Interior boundary of lower glass bulb -->
                   <polygon points="92,145 108,145 165,242 35,242" />
                 </clipPath>
-
-                <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
-                  <feGaussianBlur stdDeviation="6" result="blur" />
-                  <feComposite in="SourceGraphic" in2="blur" operator="over" />
-                </filter>
               </defs>
 
-              <!-- Wooden/Metal Stand Rings -->
+              <!-- Frames -->
               <rect x="25" y="16" width="150" height="12" rx="4" class="frame-wood" />
               <rect x="35" y="28" width="130" height="6" rx="2" class="frame-accent" />
               <rect x="35" y="246" width="130" height="6" rx="2" class="frame-accent" />
               <rect x="25" y="252" width="150" height="12" rx="4" class="frame-wood" />
 
-              <!-- Outer Glass Glow -->
               <path class="glass-outer-glow" d="M 32 36 Q 100 138 96 140 Q 100 142 32 244 L 168 244 Q 100 142 104 140 Q 100 138 168 36 Z" />
 
               <!-- Top Sand Masked Level -->
               <g clip-path="url(#topChamberClip)">
                 <rect id="top-sand-rect" x="20" y="38" width="160" height="100" fill="url(#sandGrad)" />
-                <ellipse id="top-sand-surface" cx="100" cy="38" rx="60" ry="6" fill="#fde68a" />
               </g>
 
-              <!-- Bottom Sand Mound (Grows as time passes) -->
+              <!-- Bottom Sand Mound -->
               <g clip-path="url(#bottomChamberClip)">
                 <path id="bottom-sand-mound" d="M 35 244 Q 100 244 165 244 L 165 244 L 35 244 Z" fill="url(#sandGrad)" />
               </g>
 
-              <!-- Falling Sand Stream & Impact Splashes -->
+              <!-- Falling Sand Stream -->
               <line id="sand-stream" x1="100" y1="135" x2="100" y2="240" stroke="#fcd34d" stroke-width="2.5" stroke-linecap="round" class="sand-stream" />
               
               <!-- Sand Particles Canvas -->
@@ -118,12 +113,10 @@
                 <canvas id="sand-particles-canvas" width="20" height="110"></canvas>
               </foreignObject>
 
-              <!-- Glass Bulb Outline & Shading -->
               <path class="glass-contour" d="M 32 36 Q 100 138 96 140 Q 100 142 32 244 L 168 244 Q 100 142 104 140 Q 100 138 168 36 Z" />
-              <!-- Highlight sheen -->
               <path class="glass-reflection" d="M 40 42 Q 95 136 94 140 Q 95 144 40 238" />
 
-              <!-- Side Columns -->
+              <!-- Side Pillars -->
               <rect x="22" y="28" width="6" height="224" rx="2" class="frame-pillar" />
               <rect x="172" y="28" width="6" height="224" rx="2" class="frame-pillar" />
             </svg>
@@ -133,7 +126,7 @@
         <!-- 2. Ring Animation Graphic -->
         <div id="ring-stage" class="animation-stage" style="display: none;">
           <div class="ring-wrapper">
-            <svg class="progress-ring" width="200" height="200" viewBox="0 0 200 200">
+            <svg class="progress-ring" width="190" height="190" viewBox="0 0 200 200">
               <defs>
                 <linearGradient id="ringGradient" x1="0%" y1="0%" x2="100%" y2="100%">
                   <stop offset="0%" stop-color="#f59e0b" />
@@ -151,14 +144,45 @@
           </div>
         </div>
 
+        <!-- 3. Liquid Cylinder Stage -->
+        <div id="liquid-stage" class="animation-stage" style="display: none;">
+          <div class="liquid-cylinder">
+            <div class="liquid-surface-container">
+              <div id="liquid-fill" class="liquid-fill">
+                <div class="wave wave1"></div>
+                <div class="wave wave2"></div>
+              </div>
+            </div>
+            <div class="cylinder-glass-sheen"></div>
+            <div class="cylinder-markers">
+              <span>75%</span>
+              <span>50%</span>
+              <span>25%</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4. Pulse Stage -->
+        <div id="pulse-stage" class="animation-stage" style="display: none;">
+          <div class="pulse-wrapper">
+            <div class="pulse-halo halo-3"></div>
+            <div class="pulse-halo halo-2"></div>
+            <div class="pulse-halo halo-1"></div>
+            <div class="pulse-core">
+              <span id="pulse-percentage" class="pulse-percentage-label">100%</span>
+              <span class="pulse-sub">REMAINING</span>
+            </div>
+          </div>
+        </div>
+
         <!-- Primary Digital Clock Readout -->
         <div class="timer-display-box">
-          <div class="time-readout" id="time-display">00:00:00</div>
+          <div class="time-readout" id="time-display">00:25:00</div>
           <div class="time-status" id="time-status">READY</div>
         </div>
       </section>
 
-      <!-- Input Settings & Presets (Visible when paused/stopped) -->
+      <!-- Input Settings & Presets -->
       <section class="timer-config" id="timer-config">
         <!-- Quick Presets -->
         <div class="preset-chips">
@@ -188,9 +212,40 @@
         </div>
       </section>
 
+      <!-- Sound Selection Row -->
+      <section class="sound-selection-section">
+        <div class="sound-select-box">
+          <div class="sound-select-left">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+              <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+            </svg>
+            <label for="sound-selector">Alert Sound:</label>
+            <select id="sound-selector" class="sound-dropdown">
+              <option value="beep" selected>Beep (Default)</option>
+              <option value="chime">Chime Bell</option>
+              <option value="digital">Digital Alarm</option>
+              <option value="zen">Zen Gong</option>
+              <option value="custom">Custom Audio File...</option>
+            </select>
+          </div>
+          <div class="sound-select-right">
+            <button id="btn-sound-preview" class="sound-tool-btn" title="Preview Alert Sound">
+              <svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor">
+                <polygon points="5 3 19 12 5 21 5 3"></polygon>
+              </svg>
+              <span>Test</span>
+            </button>
+            <button id="btn-custom-file" class="sound-tool-btn custom-file-btn" style="display: none;" title="Choose local audio file">
+              <span>Choose...</span>
+            </button>
+          </div>
+        </div>
+        <div id="custom-filename" class="custom-filename-display" style="display: none;"></div>
+      </section>
+
       <!-- Actions Bar -->
       <section class="controls-section">
-        <!-- Loop Toggle & Sound Toggle -->
         <div class="secondary-toggles">
           <button id="btn-loop" class="action-toggle" title="Auto-restart timer on completion">
             <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
@@ -202,7 +257,7 @@
             <span>Loop: <strong id="loop-state-text">OFF</strong></span>
           </button>
 
-          <button id="btn-sound" class="action-toggle active" title="Sound alerts">
+          <button id="btn-sound-mute" class="action-toggle active" title="Mute/Unmute sound alerts">
             <svg id="sound-icon-on" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
               <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
               <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
@@ -213,11 +268,11 @@
               <line x1="23" y1="9" x2="17" y2="15"></line>
               <line x1="17" y1="9" x2="23" y2="15"></line>
             </svg>
-            <span id="sound-label">Sound</span>
+            <span id="sound-mute-label">Audio On</span>
           </button>
         </div>
 
-        <!-- Main Buttons -->
+        <!-- Main Action Buttons -->
         <div class="primary-buttons">
           <button id="btn-reset" class="btn-secondary" title="Reset Timer">
             <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">

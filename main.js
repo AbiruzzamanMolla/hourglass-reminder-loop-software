@@ -1,5 +1,6 @@
-const { app, BrowserWindow, Tray, Menu, nativeImage, ipcMain, Notification } = require('electron');
+const { app, BrowserWindow, Tray, Menu, nativeImage, ipcMain, Notification, dialog } = require('electron');
 const path = require('path');
+const fs = require('fs');
 
 let mainWindow = null;
 let tray = null;
@@ -180,6 +181,33 @@ ipcMain.on('send-notification', (_event, { title, body }) => {
       icon: createTrayIcon()
     }).show();
   }
+});
+
+ipcMain.handle('select-audio-file', async () => {
+  if (!mainWindow) return null;
+  const result = await dialog.showOpenDialog(mainWindow, {
+    title: 'Select Alert Sound File',
+    properties: ['openFile'],
+    filters: [
+      { name: 'Audio Files', extensions: ['mp3', 'wav', 'ogg', 'aac', 'm4a', 'flac'] }
+    ]
+  });
+
+  if (!result.canceled && result.filePaths.length > 0) {
+    const filePath = result.filePaths[0];
+    const fileName = path.basename(filePath);
+    try {
+      const data = fs.readFileSync(filePath);
+      const ext = path.extname(filePath).slice(1).toLowerCase();
+      const mime = ext === 'mp3' ? 'audio/mpeg' : ext === 'wav' ? 'audio/wav' : ext === 'ogg' ? 'audio/ogg' : 'audio/*';
+      const dataUri = `data:${mime};base64,${data.toString('base64')}`;
+      return { name: fileName, dataUri };
+    } catch (err) {
+      console.error('Error reading audio file:', err);
+      return null;
+    }
+  }
+  return null;
 });
 
 app.whenReady().then(() => {

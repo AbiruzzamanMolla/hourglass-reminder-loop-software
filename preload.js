@@ -6,6 +6,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   closeApp: () => ipcRenderer.send('app-quit'),
   notify: (title, body) => ipcRenderer.send('send-notification', { title, body }),
   updateTrayTooltip: (text) => ipcRenderer.send('update-tray-tooltip', text),
+  selectAudioFile: () => ipcRenderer.invoke('select-audio-file'),
   onTimerAction: (callback) => {
     ipcRenderer.on('tray-timer-action', (_event, action) => callback(action));
   }

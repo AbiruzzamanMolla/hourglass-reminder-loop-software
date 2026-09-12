@@ -1,8 +1,11 @@
-// Sound Synthesizer using Web Audio API
+// Advanced Sound Synthesizer supporting multiple presets + custom audio file playback
 class AudioNotifier {
   constructor() {
     this.ctx = null;
     this.soundEnabled = true;
+    this.selectedSound = 'beep'; // 'beep' | 'chime' | 'digital' | 'zen' | 'custom'
+    this.customAudioBuffer = null;
+    this.customAudioName = '';
   }
 
   init() {
@@ -12,8 +15,25 @@ class AudioNotifier {
     }
   }
 
-  // Play a pleasant, resonant, multi-harmonic Tibetan bowl / digital chime bell
-  playChime() {
+  setSoundType(type) {
+    this.selectedSound = type;
+  }
+
+  async loadCustomAudio(dataUri, name) {
+    this.init();
+    try {
+      const response = await fetch(dataUri);
+      const arrayBuffer = await response.arrayBuffer();
+      this.customAudioBuffer = await this.ctx.decodeAudioData(arrayBuffer);
+      this.customAudioName = name;
+      return true;
+    } catch (err) {
+      console.error('Failed to decode custom audio file:', err);
+      return false;
+    }
+  }
+
+  play() {
     if (!this.soundEnabled) return;
     this.init();
 
@@ -21,14 +41,64 @@ class AudioNotifier {
       this.ctx.resume();
     }
 
+    switch (this.selectedSound) {
+      case 'beep':
+        this.playBeep();
+        break;
+      case 'chime':
+        this.playChime();
+        break;
+      case 'digital':
+        this.playDigitalAlarm();
+        break;
+      case 'zen':
+        this.playZenGong();
+        break;
+      case 'custom':
+        if (this.customAudioBuffer) {
+          this.playCustomBuffer();
+        } else {
+          // Fallback to beep if no custom file loaded
+          this.playBeep();
+        }
+        break;
+      default:
+        this.playBeep();
+    }
+  }
+
+  // 1. Classic Clean Electronic Beep (Default)
+  playBeep() {
     const now = this.ctx.currentTime;
-    
-    // Notes: C5 (523.25Hz), G5 (783.99Hz), C6 (1046.50Hz), E6 (1318.51Hz)
+    const beeps = [0, 0.16, 0.32]; // Triple crisp beep pattern
+
+    beeps.forEach((delay) => {
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(880, now + delay); // A5 pitch
+
+      gain.gain.setValueAtTime(0.001, now + delay);
+      gain.gain.exponentialRampToValueAtTime(0.35, now + delay + 0.015);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + delay + 0.11);
+
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+
+      osc.start(now + delay);
+      osc.stop(now + delay + 0.12);
+    });
+  }
+
+  // 2. Multi-harmonic Bell Chime
+  playChime() {
+    const now = this.ctx.currentTime;
     const chords = [
-      { freq: 523.25, gain: 0.35, decay: 2.2 },
-      { freq: 659.25, gain: 0.25, decay: 2.0 },
-      { freq: 783.99, gain: 0.3, decay: 2.5 },
-      { freq: 1046.50, gain: 0.2, decay: 1.8 }
+      { freq: 523.25, gain: 0.3, decay: 2.2 },  // C5
+      { freq: 659.25, gain: 0.22, decay: 2.0 }, // E5
+      { freq: 783.99, gain: 0.25, decay: 2.5 }, // G5
+      { freq: 1046.50, gain: 0.18, decay: 1.8 } // C6
     ];
 
     chords.forEach((note, index) => {
@@ -48,6 +118,60 @@ class AudioNotifier {
       osc.start(now + (index * 0.08));
       osc.stop(now + (index * 0.08) + note.decay);
     });
+  }
+
+  // 3. Digital Alarm Pulsing Tone
+  playDigitalAlarm() {
+    const now = this.ctx.currentTime;
+    const pulses = [0, 0.14, 0.28, 0.42];
+
+    pulses.forEach((delay) => {
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+
+      osc.type = 'square';
+      osc.frequency.setValueAtTime(1046.5, now + delay); // High punchy square wave
+
+      gain.gain.setValueAtTime(0.001, now + delay);
+      gain.gain.exponentialRampToValueAtTime(0.18, now + delay + 0.01);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + delay + 0.09);
+
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+
+      osc.start(now + delay);
+      osc.stop(now + delay + 0.1);
+    });
+  }
+
+  // 4. Low-resonance Zen Bowl / Meditation Gong
+  playZenGong() {
+    const now = this.ctx.currentTime;
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(261.63, now); // C4 deep gong
+    osc.frequency.exponentialRampToValueAtTime(255, now + 3.0);
+
+    gain.gain.setValueAtTime(0.0001, now);
+    gain.gain.exponentialRampToValueAtTime(0.5, now + 0.03);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + 3.5);
+
+    osc.connect(gain);
+    gain.connect(this.ctx.destination);
+
+    osc.start(now);
+    osc.stop(now + 3.5);
+  }
+
+  // 5. Custom Decoded Buffer
+  playCustomBuffer() {
+    if (!this.customAudioBuffer) return;
+    const source = this.ctx.createBufferSource();
+    source.buffer = this.customAudioBuffer;
+    source.connect(this.ctx.destination);
+    source.start(0);
   }
 }
 
@@ -78,7 +202,6 @@ class SandParticleSystem {
     if (!this.running) return;
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
-    // Spawn 2 particles per frame
     if (Math.random() < 0.7) {
       this.particles.push({
         x: this.canvas.width / 2 + (Math.random() - 0.5) * 4,
@@ -118,7 +241,7 @@ class HourglassApp {
     this.isRunning = false;
     this.isPaused = false;
     this.isLooping = false;
-    this.currentMode = 'hourglass'; // 'hourglass' | 'ring'
+    this.currentMode = 'hourglass'; // 'hourglass' | 'ring' | 'liquid' | 'pulse'
     this.timerInterval = null;
     this.lastTimestamp = null;
 
@@ -132,24 +255,42 @@ class HourglassApp {
     this.btnReset = document.getElementById('btn-reset');
     this.btnLoop = document.getElementById('btn-loop');
     this.loopStateText = document.getElementById('loop-state-text');
-    this.btnSound = document.getElementById('btn-sound');
+    this.btnSoundMute = document.getElementById('btn-sound-mute');
     this.soundIconOn = document.getElementById('sound-icon-on');
     this.soundIconOff = document.getElementById('sound-icon-off');
+    this.soundMuteLabel = document.getElementById('sound-mute-label');
+
+    // Sound picker
+    this.soundSelector = document.getElementById('sound-selector');
+    this.btnSoundPreview = document.getElementById('btn-sound-preview');
+    this.btnCustomFile = document.getElementById('btn-custom-file');
+    this.customFilenameDisplay = document.getElementById('custom-filename');
 
     // Titlebar
     this.btnMinimize = document.getElementById('btn-minimize');
     this.btnCloseTray = document.getElementById('btn-close-tray');
 
-    // Visuals
+    // Mode Buttons
     this.modeHourglass = document.getElementById('mode-hourglass');
     this.modeRing = document.getElementById('mode-ring');
+    this.modeLiquid = document.getElementById('mode-liquid');
+    this.modePulse = document.getElementById('mode-pulse');
+
+    // Stages
     this.hourglassStage = document.getElementById('hourglass-stage');
     this.ringStage = document.getElementById('ring-stage');
+    this.liquidStage = document.getElementById('liquid-stage');
+    this.pulseStage = document.getElementById('pulse-stage');
+
+    // Stage internal elements
     this.topSandRect = document.getElementById('top-sand-rect');
     this.bottomSandMound = document.getElementById('bottom-sand-mound');
     this.sandStream = document.getElementById('sand-stream');
     this.ringProgress = document.getElementById('ring-progress');
     this.ringPercentage = document.getElementById('ring-percentage');
+    this.liquidFill = document.getElementById('liquid-fill');
+    this.pulseWrapper = document.querySelector('.pulse-wrapper');
+    this.pulsePercentage = document.getElementById('pulse-percentage');
 
     // Inputs
     this.inputHours = document.getElementById('input-hours');
@@ -163,7 +304,7 @@ class HourglassApp {
 
     this.initEventListeners();
     this.updateDisplay();
-    this.updateVisuals(1); // 1 = 100% full top chamber
+    this.updateVisuals(1);
   }
 
   initEventListeners() {
@@ -172,7 +313,6 @@ class HourglassApp {
       this.btnMinimize.addEventListener('click', () => window.electronAPI.minimizeWindow());
       this.btnCloseTray.addEventListener('click', () => window.electronAPI.hideToTray());
 
-      // Listen for Tray actions
       window.electronAPI.onTimerAction((action) => {
         if (action === 'toggle') {
           this.togglePlayPause();
@@ -193,12 +333,49 @@ class HourglassApp {
       this.loopStateText.textContent = this.isLooping ? 'ON' : 'OFF';
     });
 
-    // Sound toggle
-    this.btnSound.addEventListener('click', () => {
+    // Sound Mute Toggle
+    this.btnSoundMute.addEventListener('click', () => {
       this.audio.soundEnabled = !this.audio.soundEnabled;
-      this.btnSound.classList.toggle('active', this.audio.soundEnabled);
+      this.btnSoundMute.classList.toggle('active', this.audio.soundEnabled);
       this.soundIconOn.style.display = this.audio.soundEnabled ? 'block' : 'none';
       this.soundIconOff.style.display = this.audio.soundEnabled ? 'none' : 'block';
+      this.soundMuteLabel.textContent = this.audio.soundEnabled ? 'Audio On' : 'Muted';
+    });
+
+    // Sound Selector Dropdown
+    this.soundSelector.addEventListener('change', (e) => {
+      const selected = e.target.value;
+      this.audio.setSoundType(selected);
+      if (selected === 'custom') {
+        this.btnCustomFile.style.display = 'flex';
+        if (this.audio.customAudioName) {
+          this.customFilenameDisplay.style.display = 'block';
+          this.customFilenameDisplay.textContent = `File: ${this.audio.customAudioName}`;
+        }
+      } else {
+        this.btnCustomFile.style.display = 'none';
+        this.customFilenameDisplay.style.display = 'none';
+      }
+    });
+
+    // Test / Preview Alert Sound
+    this.btnSoundPreview.addEventListener('click', () => {
+      this.audio.play();
+    });
+
+    // Custom File Picker Button
+    this.btnCustomFile.addEventListener('click', async () => {
+      if (window.electronAPI && window.electronAPI.selectAudioFile) {
+        const fileData = await window.electronAPI.selectAudioFile();
+        if (fileData) {
+          const success = await this.audio.loadCustomAudio(fileData.dataUri, fileData.name);
+          if (success) {
+            this.customFilenameDisplay.style.display = 'block';
+            this.customFilenameDisplay.textContent = `File: ${fileData.name}`;
+            this.audio.play(); // preview on select
+          }
+        }
+      }
     });
 
     // Preset chips
@@ -211,7 +388,7 @@ class HourglassApp {
       });
     });
 
-    // Input changes
+    // Custom time input changes
     const onInputChange = () => {
       const h = parseInt(this.inputHours.value) || 0;
       const m = parseInt(this.inputMinutes.value) || 0;
@@ -226,24 +403,37 @@ class HourglassApp {
     this.inputMinutes.addEventListener('change', onInputChange);
     this.inputSeconds.addEventListener('change', onInputChange);
 
-    // Mode Switcher
+    // Mode Switchers
     this.modeHourglass.addEventListener('click', () => this.switchMode('hourglass'));
     this.modeRing.addEventListener('click', () => this.switchMode('ring'));
+    this.modeLiquid.addEventListener('click', () => this.switchMode('liquid'));
+    this.modePulse.addEventListener('click', () => this.switchMode('pulse'));
   }
 
   switchMode(mode) {
     this.currentMode = mode;
+    const tabs = [this.modeHourglass, this.modeRing, this.modeLiquid, this.modePulse];
+    const stages = [this.hourglassStage, this.ringStage, this.liquidStage, this.pulseStage];
+
+    tabs.forEach(tab => tab.classList.remove('active'));
+    stages.forEach(stage => stage.style.display = 'none');
+
     if (mode === 'hourglass') {
       this.modeHourglass.classList.add('active');
-      this.modeRing.classList.remove('active');
       this.hourglassStage.style.display = 'flex';
-      this.ringStage.style.display = 'none';
-    } else {
+    } else if (mode === 'ring') {
       this.modeRing.classList.add('active');
-      this.modeHourglass.classList.remove('active');
-      this.hourglassStage.style.display = 'none';
       this.ringStage.style.display = 'flex';
+    } else if (mode === 'liquid') {
+      this.modeLiquid.classList.add('active');
+      this.liquidStage.style.display = 'flex';
+    } else if (mode === 'pulse') {
+      this.modePulse.classList.add('active');
+      this.pulseStage.style.display = 'flex';
     }
+
+    const fractionRemaining = this.remainingSeconds / this.totalSeconds;
+    this.updateVisuals(fractionRemaining);
   }
 
   setTime(seconds, syncInputs = true) {
@@ -268,7 +458,6 @@ class HourglassApp {
   }
 
   togglePlayPause() {
-    // Unlock audio context on user click
     this.audio.init();
 
     if (this.isRunning) {
@@ -291,9 +480,10 @@ class HourglassApp {
     this.btnPlayPause.classList.add('paused');
     this.timeStatus.textContent = 'COUNTING DOWN';
 
-    // Visual Sand stream active
+    // Activate particle animation
     this.sandStream.style.opacity = '1';
     this.sandParticles.start();
+    if (this.pulseWrapper) this.pulseWrapper.classList.add('pulsing');
 
     this.lastTimestamp = Date.now();
 
@@ -329,6 +519,7 @@ class HourglassApp {
 
     this.sandStream.style.opacity = '0';
     this.sandParticles.stop();
+    if (this.pulseWrapper) this.pulseWrapper.classList.remove('pulsing');
   }
 
   resetTimer() {
@@ -340,7 +531,6 @@ class HourglassApp {
     this.updateVisuals(1);
     this.timeStatus.textContent = 'READY';
 
-    // Flip animation aesthetic on reset
     const wrapper = document.querySelector('.hourglass-wrapper');
     if (wrapper) {
       wrapper.style.transform = 'rotate(180deg)';
@@ -362,13 +552,13 @@ class HourglassApp {
     this.updateVisuals(0);
     this.sandStream.style.opacity = '0';
     this.sandParticles.stop();
+    if (this.pulseWrapper) this.pulseWrapper.classList.remove('pulsing');
 
     this.timeStatus.textContent = 'FINISHED!';
-    this.audio.playChime();
+    this.audio.play();
 
-    // Trigger Desktop Notification
     if (window.electronAPI) {
-      window.electronAPI.notify('Timer Complete!', this.isLooping ? 'Restarting loop...' : 'Your hourglass timer has finished.');
+      window.electronAPI.notify('Timer Complete!', this.isLooping ? 'Restarting loop...' : 'Your timer has finished.');
     }
 
     if (this.isLooping) {
@@ -400,26 +590,35 @@ class HourglassApp {
   }
 
   updateVisuals(fractionRemaining) {
-    // 1. Hourglass Visual
-    // Top chamber: starts at y=38, height=97 (full). As fraction decreases, y goes down from 38 to 135.
+    const elapsedFraction = 1 - fractionRemaining;
+
+    // 1. Hourglass
     const topHeight = Math.max(0, 97 * fractionRemaining);
     const topY = 135 - topHeight;
     this.topSandRect.setAttribute('y', topY);
     this.topSandRect.setAttribute('height', topHeight);
 
-    // Bottom chamber mound: starts flat at y=244, rises into a pyramid peak as sand falls
-    // Peak height rises from 244 up to 145 (amplitude 99)
-    const elapsedFraction = 1 - fractionRemaining;
     const moundPeakY = 244 - (95 * elapsedFraction);
     const pathD = `M 35 244 Q 100 ${moundPeakY} 165 244 L 165 244 L 35 244 Z`;
     this.bottomSandMound.setAttribute('d', pathD);
 
-    // 2. Ring Visual
-    const circumference = 515; // 2 * PI * 82
+    // 2. Ring
+    const circumference = 515;
     const offset = circumference * (1 - elapsedFraction);
     this.ringProgress.style.strokeDashoffset = offset;
-    const percentage = Math.round(elapsedFraction * 100);
-    this.ringPercentage.textContent = `${percentage}%`;
+    const elapsedPercentage = Math.round(elapsedFraction * 100);
+    this.ringPercentage.textContent = `${elapsedPercentage}%`;
+
+    // 3. Liquid Cylinder (drops with remaining time)
+    if (this.liquidFill) {
+      this.liquidFill.style.height = `${Math.round(fractionRemaining * 100)}%`;
+    }
+
+    // 4. Pulse
+    if (this.pulsePercentage) {
+      const remainingPercent = Math.round(fractionRemaining * 100);
+      this.pulsePercentage.textContent = `${remainingPercent}%`;
+    }
   }
 }
 
