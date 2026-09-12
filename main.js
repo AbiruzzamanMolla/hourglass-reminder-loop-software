@@ -6,6 +6,11 @@ let mainWindow = null;
 let tray = null;
 let isQuitting = false;
 
+// Configure unique user-data and cache path to avoid permission collision on Windows
+const customUserDataPath = path.join(app.getPath('appData'), 'hourglass-timer-app');
+app.setPath('userData', customUserDataPath);
+app.commandLine.appendSwitch('disable-gpu-shader-disk-cache');
+
 // Generate crisp 16x16 PNG tray icon programmatically
 function createTrayIcon() {
   const size = 16;

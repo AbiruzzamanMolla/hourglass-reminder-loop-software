@@ -1,10 +1,12 @@
 {
   "name": "hourglass-timer",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "A cross-platform progressive desktop timer with hourglass animation and system tray support",
   "main": "main.js",
   "scripts": {
-    "start": "electron ."
+    "start": "electron .",
+    "build": "electron-builder --win portable --dir",
+    "dist": "electron-builder --win portable"
   },
   "keywords": [
     "timer",
@@ -13,9 +15,32 @@
     "electron",
     "tray"
   ],
-  "author": "",
+  "author": "Abir",
   "license": "MIT",
+  "build": {
+    "appId": "com.hourglass.timer",
+    "productName": "Hourglass Timer",
+    "directories": {
+      "output": "dist"
+    },
+    "win": {
+      "target": "portable",
+      "icon": "icon.ico"
+    },
+    "portable": {
+      "artifactName": "Hourglass-Timer-v0.0.1.exe"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "index.html",
+      "style.css",
+      "renderer.js",
+      "icon.ico"
+    ]
+  },
   "devDependencies": {
-    "electron": "^33.2.0"
+    "electron": "^33.2.0",
+    "electron-builder": "^25.1.8"
   }
 }
