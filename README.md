@@ -49,7 +49,7 @@ Select the installer that matches your Windows system architecture:
 - **Unthrottled Timer**: The countdown continues accurately in the background.
 - **Tray Tooltip**: Hovering over the tray icon displays the live remaining time.
 - **Context Menu**: Right-click the tray icon to quickly *Open*, *Start / Pause*, *Reset*, or *Quit*.
-- **Desktop Notifications**: Native Windows notifications appear when the timer finishes.
+- **Desktop Notifications**: Native Windows notifications appear when the timer finishes (with a one-click `Notify On / Notify Off` toggle button).
 
 ### 5. ⏱️ Flexible Input Controls
 - Quick preset buttons: `1m`, `5m`, `15m`, `25m`, and `1h`.

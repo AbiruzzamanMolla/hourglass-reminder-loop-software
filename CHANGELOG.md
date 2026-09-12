@@ -26,7 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Intercepts window close (`X`) button to minimize directly to the Windows Notification Area / System Tray.
   - Unthrottled timer execution in the background with continuous live countdown tooltip updates.
   - Right-click tray context menu: *Open*, *Start / Pause*, *Reset*, and *Quit*.
-  - Native Windows desktop notifications fired upon timer completion.
+  - Native Windows desktop notifications fired upon timer completion (with dedicated one-click Enable/Disable toggle button).
 - **Loop Mode**:
   - One-click Loop toggle (`Loop: ON / OFF`) that rings the chime upon completion and automatically restarts the interval continuously.
 - **Time Controls**:
